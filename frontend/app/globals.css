@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: #0d0d14;
+  color: #f0efff;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #14141f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6c63ff;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7d73ff;
+}
+
+/* Syntax highlighting with Prism */
+pre[class*="language-"] {
+  background: #090910 !important;
+  color: #f0efff !important;
+  border-radius: 8px;
+  overflow: auto;
+  padding: 16px !important;
+  font-size: 14px !important;
+}
+
+code[class*="language-"] {
+  background: none !important;
+  color: inherit !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #8b8aa0;
+}
+
+.token.punctuation {
+  color: #f0efff;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #ff6b9d;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #00d9a6;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #6c63ff;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #6c63ff;
+}
+
+.token.function,
+.token.class-name {
+  color: #ff6b9d;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #ffa500;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #6c63ff;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Custom gradient text */
+.bg-gradient-text {
+  background: linear-gradient(135deg, #6c63ff, #ff6b9d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect for interactive elements */
+.glow-focus:focus-within {
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+}
+
+/* Custom input styling */
+input,
+textarea,
+select {
+  background-color: #14141f;
+  border-color: #1f1f30;
+  color: #f0efff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8b8aa0;
+}
+
+/* Smooth loading state */
+.loading {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(108, 99, 255, 0.1),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
