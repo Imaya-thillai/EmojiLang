@@ -170,7 +170,7 @@ export function Hero() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,217,166,0.3)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                window.open("https://github.com", "_blank");
+                window.open("https://github.com/Imaya-thillai/EmojiLang", "_blank");
               }}
               className="px-8 py-4 rounded-lg bg-[#14141F] border border-[#00D9A6] text-[#00D9A6] font-bold text-lg transition-all hover:bg-[#1F1F30]"
             >
