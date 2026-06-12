@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -48,11 +49,11 @@ export default function RootLayout({
         />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" />
         
-        {/* Preload Pyodide for faster startup */}
-        <link
-          rel="preload"
-          as="script"
-          href="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"
+        {/* Load Pyodide using Next.js Script component */}
+        <Script
+          src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"
+          strategy="beforeInteractive"
+          crossOrigin="anonymous"
         />
       </head>
       <body
