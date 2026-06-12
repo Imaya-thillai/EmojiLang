@@ -47,6 +47,13 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
         />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" />
+        
+        {/* Preload Pyodide for faster startup */}
+        <link
+          rel="preload"
+          as="script"
+          href="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"
+        />
       </head>
       <body
         className="bg-[#0D0D14] text-[#F0EFFF]"
