@@ -78,12 +78,17 @@ function loadScript(src: string): Promise<void> {
     // Check if script already exists
     const existing = document.querySelector(`script[src="${src}"]`);
     if (existing) {
-      // If script exists, wait a bit and check if Pyodide is ready
-      setTimeout(() => {
+      // If script exists, poll for Pyodide to be available
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max
+      const pollInterval = setInterval(() => {
+        attempts++;
         if ((globalThis as any).Pyodide) {
+          clearInterval(pollInterval);
           resolve();
-        } else {
-          resolve(); // Still resolve since the script was added
+        } else if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          reject(new Error("Pyodide global not found"));
         }
       }, 100);
       return;
@@ -92,7 +97,7 @@ function loadScript(src: string): Promise<void> {
     const script = document.createElement("script");
     script.src = src;
     script.type = "text/javascript";
-    script.async = true;
+    script.async = false; // Synchronous execution ensures proper initialization
     script.defer = false;
 
     let timeoutId: NodeJS.Timeout | null = null;
@@ -100,8 +105,21 @@ function loadScript(src: string): Promise<void> {
     script.onload = () => {
       if (timeoutId) clearTimeout(timeoutId);
       console.log(`Script loaded successfully: ${src}`);
-      // Give it a moment for the global to be set
-      setTimeout(() => resolve(), 100);
+      // Poll to ensure Pyodide global is available (up to 5 seconds)
+      let attempts = 0;
+      const maxAttempts = 50;
+      const pollInterval = setInterval(() => {
+        attempts++;
+        if ((globalThis as any).Pyodide) {
+          clearInterval(pollInterval);
+          console.log("Pyodide global detected");
+          resolve();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          console.warn("Pyodide global not found after polling, continuing anyway");
+          resolve(); // Resolve anyway, error will be caught in initPyodide
+        }
+      }, 100);
     };
 
     script.onerror = (error) => {
