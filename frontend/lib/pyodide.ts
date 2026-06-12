@@ -32,8 +32,8 @@ export async function loadPyodide(): Promise<any> {
         script.src = "https://cdn.pyodide.org/releases/latest/pyodide.js";
         script.async = true;
         script.onload = () => {
-          // Small delay to ensure globals are set
-          setTimeout(() => resolve(), 1000);
+          // Wait longer to ensure globals are fully set
+          setTimeout(() => resolve(), 2000);
         };
         script.onerror = () => {
           console.error("Failed to load from official CDN, trying jsDelivr...");
@@ -41,7 +41,7 @@ export async function loadPyodide(): Promise<any> {
           const fallback = document.createElement("script");
           fallback.src = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js";
           fallback.async = true;
-          fallback.onload = () => setTimeout(() => resolve(), 1000);
+          fallback.onload = () => setTimeout(() => resolve(), 2000);
           fallback.onerror = () => reject(new Error("Failed to load Pyodide from any CDN"));
           document.head.appendChild(fallback);
         };
@@ -51,7 +51,7 @@ export async function loadPyodide(): Promise<any> {
 
     // Wait for Pyodide global to be available
     let attempts = 0;
-    const maxAttempts = 200;
+    const maxAttempts = 400; // 20 seconds timeout
     while (!(globalThis as any).Pyodide && !(globalThis as any).PyodideModule && attempts < maxAttempts) {
       await new Promise((resolve) => setTimeout(resolve, 50));
       attempts++;
@@ -63,9 +63,10 @@ export async function loadPyodide(): Promise<any> {
       throw new Error(`Pyodide global not available after ${attempts * 50}ms. Check browser console for loading errors.`);
     }
 
-    // Initialize Pyodide
+    // Initialize Pyodide with extended timeout
     pyodide = await Pyodide.loadPyodide({
       indexURL: "https://cdn.pyodide.org/releases/latest/",
+      fullStdLib: false, // Don't load full stdlib to speed up initialization
     });
     
     isLoading = false;
