@@ -18,13 +18,11 @@ export function ExecutionPanel({
 }: ExecutionPanelProps) {
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [showTyping, setShowTyping] = useState(false);
 
   const handleExecute = async () => {
     if (!code.trim()) return;
 
     setIsExecuting(true);
-    setShowTyping(true);
     setResult(null);
 
     try {
@@ -38,7 +36,6 @@ export function ExecutionPanel({
       });
     } finally {
       setIsExecuting(false);
-      setShowTyping(false);
     }
   };
 

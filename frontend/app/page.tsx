@@ -21,7 +21,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [examples, setExamples] = useState<EmojiExample[]>([]);
   const [hasExecuted, setHasExecuted] = useState(false);
-  const [executionOutput, setExecutionOutput] = useState<ExecutionResult | null>(null);
 
   // Load examples on mount
   useEffect(() => {
@@ -172,7 +171,6 @@ export default function Home() {
   };
 
   const handleExecutionComplete = (result: ExecutionResult) => {
-    setExecutionOutput(result);
     if (!result.error && !hasExecuted) {
       // Confetti on first successful execution
       confetti({

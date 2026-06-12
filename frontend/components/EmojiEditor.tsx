@@ -10,17 +10,6 @@ interface EmojiEditorProps {
   onTranspile: () => void;
 }
 
-const getEmojiColor = (emoji: string): string => {
-  // Control flow emojis → indigo
-  if (["🔁", "🔄", "❓", "❗"].includes(emoji)) return "text-[#6C63FF]";
-  // I/O emojis → pink
-  if (["📢", "📦"].includes(emoji)) return "text-[#FF6B9D]";
-  // Math emojis → amber
-  if (["➕", "➖", "✖️", "➗"].includes(emoji)) return "text-amber-400";
-  // Other emojis → teal
-  return "text-[#00D9A6]";
-};
-
 export function EmojiEditor({ value, onChange, isLoading, onTranspile }: EmojiEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [lineCount, setLineCount] = useState(1);
