@@ -3,11 +3,7 @@ import { ExecutionResult } from "@/types";
 let pyodide: any = null;
 let loadPromise: Promise<any> | null = null;
 
-const PYODIDE_VERSION = "0.25.1";
-const CDN_URLS = [
-  `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/pyodide.js`,
-  `https://pyodide-cdn.iodide.io/pyodide.js`,
-];
+const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/";
 
 export async function loadPyodide(): Promise<any> {
   // Return cached instance if already loaded
@@ -28,68 +24,45 @@ async function initPyodide(): Promise<any> {
   try {
     console.log("Starting Pyodide initialization...");
 
-    // Check if Pyodide is already loaded
+    // First, try to check if Pyodide is already available globally
     if ((globalThis as any).Pyodide) {
-      console.log("Pyodide already in global scope");
+      console.log("Pyodide already available in global scope");
       const Pyodide = (globalThis as any).Pyodide;
       pyodide = await Pyodide.loadPyodide({
-        indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+        indexURL: PYODIDE_CDN,
         fullStdLib: false,
       });
       return pyodide;
     }
 
-    // Load Pyodide script from CDN with fallback
-    console.log("Loading Pyodide script...");
-    let lastError: Error | null = null;
+    // Load the Pyodide script
+    console.log("Loading Pyodide script from CDN...");
     
-    for (const cdnUrl of CDN_URLS) {
-      try {
-        console.log(`Attempting to load Pyodide from: ${cdnUrl}`);
-        await loadScript(cdnUrl);
-        console.log(`Successfully loaded Pyodide from: ${cdnUrl}`);
-        break;
-      } catch (error) {
-        lastError = error as Error;
-        console.warn(`Failed to load from ${cdnUrl}, trying next CDN...`, error);
-      }
-    }
+    // Create script element and wait for it to load
+    const scriptUrl = `${PYODIDE_CDN}pyodide.js`;
+    await loadScript(scriptUrl);
 
-    if (lastError && !(globalThis as any).Pyodide) {
-      throw new Error(
-        `All CDN sources failed to load Pyodide. Last error: ${lastError.message}`
-      );
-    }
-
-    // Wait for Pyodide global with extended timeout
-    console.log("Waiting for Pyodide global...");
-    let attempts = 0;
-    const maxAttempts = 1200; // 60 seconds
-    
-    while (!(globalThis as any).Pyodide && attempts < maxAttempts) {
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      attempts++;
-      if (attempts % 40 === 0) {
-        console.log(`Waiting for Pyodide... ${attempts * 50}ms elapsed`);
-      }
-    }
-
+    // Verify Pyodide is now available
     if (!(globalThis as any).Pyodide) {
-      throw new Error(
-        `Pyodide failed to load after ${attempts * 50}ms. ` +
-        `Check browser console and network tab for errors. ` +
-        `CDN may be blocked or unreachable.`
-      );
+      throw new Error("Pyodide script loaded but Pyodide global not found");
     }
 
-    console.log("Pyodide global found, initializing...");
+    console.log("Pyodide global detected, initializing...");
     const Pyodide = (globalThis as any).Pyodide;
 
-    // Initialize Pyodide
-    pyodide = await Pyodide.loadPyodide({
-      indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
-      fullStdLib: false,
-    });
+    // Initialize Pyodide with timeout
+    pyodide = await Promise.race([
+      Pyodide.loadPyodide({
+        indexURL: PYODIDE_CDN,
+        fullStdLib: false,
+      }),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Pyodide initialization timeout (30s)")),
+          30000
+        )
+      ),
+    ]);
 
     console.log("Pyodide initialized successfully");
     return pyodide;
@@ -102,10 +75,17 @@ async function initPyodide(): Promise<any> {
 
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Check if script is already loaded
+    // Check if script already exists
     const existing = document.querySelector(`script[src="${src}"]`);
     if (existing) {
-      resolve();
+      // If script exists, wait a bit and check if Pyodide is ready
+      setTimeout(() => {
+        if ((globalThis as any).Pyodide) {
+          resolve();
+        } else {
+          resolve(); // Still resolve since the script was added
+        }
+      }, 100);
       return;
     }
 
@@ -114,25 +94,27 @@ function loadScript(src: string): Promise<void> {
     script.type = "text/javascript";
     script.async = true;
     script.defer = false;
-    
+
     let timeoutId: NodeJS.Timeout | null = null;
-    
+
     script.onload = () => {
       if (timeoutId) clearTimeout(timeoutId);
-      console.log(`Script loaded: ${src}`);
-      resolve();
-    };
-    
-    script.onerror = (error) => {
-      if (timeoutId) clearTimeout(timeoutId);
-      console.error(`Failed to load script: ${src}`, error);
-      reject(new Error(`Failed to load Pyodide from ${src}: ${error}`));
+      console.log(`Script loaded successfully: ${src}`);
+      // Give it a moment for the global to be set
+      setTimeout(() => resolve(), 100);
     };
 
-    // Add timeout for CDN loading
+    script.onerror = (error) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      console.error(`Script load error: ${src}`, error);
+      reject(new Error(`Failed to load script from ${src}`));
+    };
+
+    // Add 30 second timeout
     timeoutId = setTimeout(() => {
-      reject(new Error(`Script load timeout for ${src} (20s)`));
-    }, 20000);
+      console.error(`Script load timeout: ${src}`);
+      reject(new Error(`Script load timeout for ${src} (30s)`));
+    }, 30000);
 
     document.head.appendChild(script);
   });
