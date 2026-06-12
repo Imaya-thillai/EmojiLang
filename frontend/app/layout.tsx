@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 
+<Script
+  src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"
+  strategy="beforeInteractive"
+/>
+
 export const metadata: Metadata = {
   title: "EmojiLang - AI-Powered Programming in Emojis",
   description:
@@ -66,4 +71,5 @@ export default function RootLayout({
       </body>
     </html>
   );
+  
 }
