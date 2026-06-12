@@ -11,7 +11,7 @@ import { CodeOutput } from "@/components/CodeOutput";
 import { ExecutionPanel } from "@/components/ExecutionPanel";
 import { TranspileResult, TargetLanguage, EmojiExample, ExecutionResult } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 export default function Home() {
   const [emojiCode, setEmojiCode] = useState("");
